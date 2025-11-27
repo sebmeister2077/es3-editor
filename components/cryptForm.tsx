@@ -19,6 +19,7 @@ import { useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import NextLink from 'next/link';
 import crypto from 'crypto';
+import { jsonParse } from './jsonParse';
 
 const Editor = dynamic(() => import('./editor'), { ssr: false });
 
@@ -36,18 +37,10 @@ function getJSONParseError(data: any): any | null {
   return null;
 }
 
-function isJSON(data: Buffer, removeCommas = false): boolean {
+function isJSON(data: Buffer): boolean {
   try {
-    const value = data.toString();
-    const commaRegex = /,\s*}/g;
-    if (removeCommas && commaRegex.test(value)) {
-      return isJSON(Buffer.from(value.replace(commaRegex, '}')), false);
-    }
-
-    const parsed = JSON.parse(value);
+    jsonParse(data);
   } catch (e) {
-    const commaError = 'Expected double-quoted property name in JSON';
-    if (!removeCommas || !(e instanceof Error) || !e.message.includes(commaError)) return isJSON(data, true);
     return false;
   }
   return true;

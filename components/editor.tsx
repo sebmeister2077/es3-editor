@@ -15,6 +15,7 @@ import 'jsoneditor/dist/jsoneditor.min.css';
 
 import Footer from './footer';
 import { EditorData } from './cryptForm';
+import { jsonParse } from './jsonParse';
 
 type Props = {
   isLoading: boolean;
@@ -26,13 +27,16 @@ type Props = {
   saveData: () => Promise<boolean>;
 };
 export default function Editor({ isLoading, setIsLoading, isOpen, onClose, data, setData, saveData }: Props) {
-  const editorContainer = useRef<HTMLDivElement | null>(null);
+  console.log('🚀 ~ Editor ~ data:', data);
+  const [editorContainer, setEditorContainer] = useState<HTMLDivElement | null>(null);
   const [editor, setEditor] = useState<JSONEditor | null>(null);
 
   useEffect(() => {
-    if (!editorContainer.current || !data) return;
+    // if (!isOpen) return;
+    // debugger;
+    if (!editorContainer || !data) return;
 
-    const editor = new JSONEditor(editorContainer.current, {
+    const editor = new JSONEditor(editorContainer, {
       mode: isLoading ? 'view' : 'tree',
       onChangeText: (newData) => {
         setData({ ...data, data: Buffer.from(newData) });
@@ -40,7 +44,7 @@ export default function Editor({ isLoading, setIsLoading, isOpen, onClose, data,
     });
 
     setEditor(editor);
-    editor.set(JSON.parse(data.data?.toString() ?? '{}'));
+    editor.set(data.data ? jsonParse(data.data) : {});
 
     return () => {
       setEditor(null);
@@ -60,7 +64,7 @@ export default function Editor({ isLoading, setIsLoading, isOpen, onClose, data,
       <ModalContent>
         <ModalHeader>Editor</ModalHeader>
         <ModalBody mt="5">
-          <div ref={editorContainer}></div>
+          <div ref={(el) => setEditorContainer(el)}></div>
         </ModalBody>
         <ModalFooter>
           <Footer left />
