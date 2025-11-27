@@ -32,7 +32,7 @@ export default function Editor({ isLoading, setIsLoading, isOpen, onClose, data,
     });
 
     setEditor(editor);
-    editor.set(jsonParse(data.data));
+    editor.set(jsonParse(data.data.toString()));
 
     return () => {
       setEditor(null);

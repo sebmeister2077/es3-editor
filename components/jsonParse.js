@@ -1,13 +1,12 @@
 // Some JSON data might have trailing commas that cause JSON.parse to fail. (e.g. from Supermarket Together exports)
 /**
  * 
- * @param {Buffer} data 
+ * @param {string} value 
  * @param {boolean?} removeCommas 
  * @returns {any | null}
  */
-export function jsonParse(data, removeCommas) {
+export function jsonParse(value, removeCommas) {
     try {
-        const value = data.toString();
         const commaRegex = /,\s*}/g;
         if (removeCommas && commaRegex.test(value)) {
             return JSON.parse(Buffer.from(value.replace(commaRegex, '}')).toString());
