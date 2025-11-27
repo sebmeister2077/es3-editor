@@ -7,31 +7,40 @@ import {
   ModalHeader,
   ModalFooter,
   ModalBody,
-  ModalCloseButton
+  ModalCloseButton,
 } from '@chakra-ui/react';
 import JSONEditor from 'jsoneditor';
 import { useRef, useEffect, useCallback, useState } from 'react';
 import 'jsoneditor/dist/jsoneditor.min.css';
 
 import Footer from './footer';
+import { EditorData } from './cryptForm';
 
-export default function Editor({ isLoading, setIsLoading, isOpen, onClose, data, setData, saveData }) {
-  const [editorContainer, setEditorContainer] = useState(null);
-  const [editor, setEditor] = useState(null);
+type Props = {
+  isLoading: boolean;
+  setIsLoading: (loading: boolean) => void;
+  isOpen: boolean;
+  onClose: () => void;
+  data: EditorData | null;
+  setData: (data: EditorData | null) => void;
+  saveData: () => Promise<boolean>;
+};
+export default function Editor({ isLoading, setIsLoading, isOpen, onClose, data, setData, saveData }: Props) {
+  const editorContainer = useRef<HTMLDivElement | null>(null);
+  const [editor, setEditor] = useState<JSONEditor | null>(null);
 
   useEffect(() => {
-    if (!editorContainer || !data)
-      return;
+    if (!editorContainer.current || !data) return;
 
-    const editor = new JSONEditor(editorContainer, {
-      mode: isLoading ? 'view': 'tree',
-      onChangeText: newData => {
+    const editor = new JSONEditor(editorContainer.current, {
+      mode: isLoading ? 'view' : 'tree',
+      onChangeText: (newData) => {
         setData({ ...data, data: Buffer.from(newData) });
-      }
+      },
     });
 
     setEditor(editor);
-    editor.set(JSON.parse(data.data.toString()));
+    editor.set(JSON.parse(data.data?.toString() ?? '{}'));
 
     return () => {
       setEditor(null);
@@ -40,29 +49,23 @@ export default function Editor({ isLoading, setIsLoading, isOpen, onClose, data,
   }, [editorContainer]);
 
   useEffect(() => {
-    if (!editor)
-      return;
+    if (!editor) return;
 
     editor.setMode(isLoading ? 'view' : 'tree');
   }, [isLoading]);
 
-  const editorContainerRef = useCallback(node => {
-    if (node)
-      setEditorContainer(node);
-  }, []);
-
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size='full' mt='20'>
+    <Modal isOpen={isOpen} onClose={onClose} size="full">
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>Editor</ModalHeader>
-        <ModalBody mt='5'>
-          <div ref={editorContainerRef}></div>
+        <ModalBody mt="5">
+          <div ref={editorContainer}></div>
         </ModalBody>
         <ModalFooter>
           <Footer left />
           <Button
-            colorScheme='orange'
+            colorScheme="orange"
             isDisabled={isLoading}
             onClick={async () => {
               setIsLoading(true);
@@ -70,14 +73,13 @@ export default function Editor({ isLoading, setIsLoading, isOpen, onClose, data,
               const isSaveSuccess = await saveData();
               setIsLoading(false);
 
-              if (isSaveSuccess)
-                onClose();
+              if (isSaveSuccess) onClose();
             }}
           >
             Save
           </Button>
           <Button
-            ml='3'
+            ml="3"
             onClick={() => {
               setData(null);
               onClose();

@@ -17,7 +17,7 @@ import {
   useDisclosure,
   IconButton,
   Link,
-  useToast
+  useToast,
 } from '@chakra-ui/react';
 import { CloseIcon, ChevronRightIcon, ChevronDownIcon } from '@chakra-ui/icons';
 import { useEffect, useState } from 'react';
@@ -25,38 +25,48 @@ import Head from 'next/head';
 
 import CryptForm from '../components/cryptForm';
 import Footer from '../components/footer';
-import passwords from '../passwords';
+import passwords from '../passwords.json';
 
 const PASSWORD_LENGTH_THRESHOLD = 50;
 
-function PasswordView({ toast, gameName, password, myIndex, selectedIndex, setSelectedIndex }) {
+type Props = {
+  toast: ReturnType<typeof useToast>;
+  gameName: string;
+  password: string;
+  myIndex: number;
+  selectedIndex: number;
+  setSelectedIndex: (index: number) => void;
+};
+function PasswordView({ toast, gameName, password, myIndex, selectedIndex, setSelectedIndex }: Props) {
   const selected = myIndex == selectedIndex;
   const passesThreshold = password.length > PASSWORD_LENGTH_THRESHOLD;
 
   return (
     <>
       <IconButton
+        aria-label="Expand password"
         visibility={passesThreshold ? 'visible' : 'hidden'}
-        size='sm' mr='2' variant='ghost' rounded='full'
+        size="sm"
+        mr="2"
+        variant="ghost"
+        rounded="full"
         icon={selected ? <ChevronRightIcon /> : <ChevronDownIcon />}
         onClick={() => setSelectedIndex(selected ? -1 : myIndex)}
       />
       <Code
         display={!selected ? 'none' : undefined}
-        maxW='50%'
-        whiteSpace='normal'
-        overflowWrap='break-word'
-        wordBreak='break-word'
+        maxW="50%"
+        whiteSpace="normal"
+        overflowWrap="break-word"
+        wordBreak="break-word"
       >
         {password}
       </Code>
-      <Code display={selected ? 'none' : undefined}>
-        {password.slice(0, 25)}
-      </Code>
+      <Code display={selected ? 'none' : undefined}>{password.slice(0, 25)}</Code>
       {!selected && passesThreshold ? (
         <>
           <Text>...</Text>
-          <Box ml='2'>
+          <Box ml="2">
             <Link
               onClick={() => {
                 navigator.clipboard.writeText(password);
@@ -66,16 +76,19 @@ function PasswordView({ toast, gameName, password, myIndex, selectedIndex, setSe
                   status: 'success',
                   duration: 1500,
                   isClosable: true,
-                  position: 'bottom-left'
+                  position: 'bottom-left',
                 });
-              }} color='skyblue'
+              }}
+              color="skyblue"
             >
-              <Text fontSize='x-small'>unusually long password</Text>
-              <Text fontSize='small'>click to copy</Text>
+              <Text fontSize="x-small">unusually long password</Text>
+              <Text fontSize="small">click to copy</Text>
             </Link>
           </Box>
         </>
-      ) : false}
+      ) : (
+        false
+      )}
     </>
   );
 }
@@ -90,62 +103,55 @@ export default function Home() {
   return (
     <>
       <Head>
-        <meta property='og:title' content={'EasySave3 Editor | Modify your favorite games\' save files!'} />
-        <meta property='og:url' content='https://es3.lol/' />
+        <meta property="og:title" content={"EasySave3 Editor | Modify your favorite games' save files!"} />
+        <meta property="og:url" content="https://es3.lol/" />
         <meta
-          name='og:description'
-          content='EasySave3 Editor helps you empower your gaming journey with effortless save file editing. Seamlessly modify, and manage EasySave3 game saves with a user-friendly web application designed to enhance your gaming experience.'
+          name="og:description"
+          content="EasySave3 Editor helps you empower your gaming journey with effortless save file editing. Seamlessly modify, and manage EasySave3 game saves with a user-friendly web application designed to enhance your gaming experience."
         />
         <meta
-          name='description'
-          content='EasySave3 Editor helps you empower your gaming journey with effortless save file editing. Seamlessly modify, and manage EasySave3 game saves with a user-friendly web application designed to enhance your gaming experience.'
+          name="description"
+          content="EasySave3 Editor helps you empower your gaming journey with effortless save file editing. Seamlessly modify, and manage EasySave3 game saves with a user-friendly web application designed to enhance your gaming experience."
         />
       </Head>
 
-      <a id='downloader' style={{ display: 'none' }}></a>
-      <Flex alignItems='center' justifyContent='center' mt='24' mb='14'>
-        <Box
-          direction='column'
-          background='gray.700'
-          rounded='6'
-          p='12'
-          position='relative'
-        >
-          <Heading mb='6'>EasySave3 Editor</Heading>
+      <a id="downloader" style={{ display: 'none' }}></a>
+      <Flex alignItems="center" justifyContent="center" mt="24" mb="14">
+        <Box flexDirection="column" background="gray.700" rounded="6" p="12" position="relative">
+          <Heading mb="6">EasySave3 Editor</Heading>
 
           <Text>Password</Text>
-          <Box display='flex' flexDirection='row'>
+          <Box display="flex" flexDirection="row">
             <Input
               value={password}
-              placeholder='a1bc2d3fghi4...'
-              onChange={e => {
-                if (typeof gtag != 'undefined')
-                  gtag('event', 'change_password', { password: e.target.value });
+              placeholder="a1bc2d3fghi4..."
+              onChange={(e) => {
+                if (typeof gtag != 'undefined') gtag('event', 'change_password', { password: e.target.value });
 
                 setPassword(e.target.value);
               }}
               disabled={isLoading}
             />
             <IconButton
-              ml='3'
-              variant='outline'
-              colorScheme='red'
+              aria-label="Clear password"
+              ml="3"
+              variant="outline"
+              colorScheme="red"
               icon={<CloseIcon />}
               onClick={() => {
-                if (typeof gtag != 'undefined')
-                  gtag('event', 'clear_password', { 'previous_password': password });
+                if (typeof gtag != 'undefined') gtag('event', 'clear_password', { previous_password: password });
 
                 setPassword('');
               }}
             />
           </Box>
-          <Text mt='2'>Don&apos;t know the password for your game?</Text>
+          <Text mt="2">Don&apos;t know the password for your game?</Text>
           <Text>Check if it is already known below.</Text>
           <Button
-            mt='2' colorScheme='teal'
+            mt="2"
+            colorScheme="teal"
             onClick={() => {
-              if (typeof gtag != 'undefined')
-                gtag('event', 'open_known_passwords', { password });
+              if (typeof gtag != 'undefined') gtag('event', 'open_known_passwords', { password });
 
               onOpen();
             }}
@@ -153,27 +159,26 @@ export default function Home() {
             Known game passwords
           </Button>
 
-          <Divider mt='8' mb='3' />
-          <Heading size='md' mb='3'>Decryption</Heading>
+          <Divider mt="8" mb="3" />
+          <Heading size="md" mb="3">
+            Decryption
+          </Heading>
           <CryptForm isLoading={isLoading} setIsLoading={setIsLoading} password={password} />
-          <Text mt='5'>Some games might not encrypt their save files and</Text>
+          <Text mt="5">Some games might not encrypt their save files and</Text>
           <Text>only compress them using GZip. In this case, you</Text>
           <Text>don&apos;t have to provide a password.</Text>
 
-          <Divider mt='5' mb='3' />
-          <Heading size='md' mb='3'>Encryption</Heading>
+          <Divider mt="5" mb="3" />
+          <Heading size="md" mb="3">
+            Encryption
+          </Heading>
           <CryptForm isLoading={isLoading} setIsLoading={setIsLoading} password={password} isEncryption />
         </Box>
       </Flex>
 
       <Footer />
 
-      <Modal
-        blockScrollOnMount={false}
-        isOpen={isOpen} onClose={onClose}
-        scrollBehavior='inside' isCentered
-        size='3xl'
-      >
+      <Modal blockScrollOnMount={false} isOpen={isOpen} onClose={onClose} scrollBehavior="inside" isCentered size="3xl">
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>Known game passwords</ModalHeader>
@@ -181,24 +186,22 @@ export default function Home() {
           <ModalBody>
             {passwords.map(({ gameName, password }, index) => (
               <Box key={index}>
-                {index !== 0 && <Divider my='2' />}
-                <Box
-                  display='flex'
-                  flexDirection='row'
-                  alignItems='center'
-                >
+                {index !== 0 && <Divider my="2" />}
+                <Box display="flex" flexDirection="row" alignItems="center">
                   <PasswordView
-                    toast={toast} gameName={gameName}
-                    password={password} myIndex={index}
+                    toast={toast}
+                    gameName={gameName}
+                    password={password}
+                    myIndex={index}
                     selectedIndex={passwordIndex}
                     setSelectedIndex={setPasswordIndex}
                   />
-                  <Text ml='auto'>{gameName}</Text>
+                  <Text ml="auto">{gameName}</Text>
                   <Button
-                    ml='3' colorScheme='teal'
+                    ml="3"
+                    colorScheme="teal"
                     onClick={() => {
-                      if (typeof gtag != 'undefined')
-                        gtag('event', 'use_password', { 'game_name': gameName, password });
+                      if (typeof gtag != 'undefined') gtag('event', 'use_password', { game_name: gameName, password });
 
                       setPassword(password);
                       onClose();
@@ -209,17 +212,17 @@ export default function Home() {
                 </Box>
               </Box>
             ))}
-            <Text mt='5'>Can&apos;t find your game here?</Text>
+            <Text mt="5">Can&apos;t find your game here?</Text>
             <Text>Try decrypting it without a password.</Text>
           </ModalBody>
 
           <ModalFooter>
-            <Button onClick={onClose}>
-              Ok
-            </Button>
+            <Button onClick={onClose}>Ok</Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
     </>
   );
 }
+
+declare const gtag: any;
