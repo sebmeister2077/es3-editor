@@ -19,6 +19,7 @@ import { useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import NextLink from 'next/link';
 import crypto from 'crypto';
+import { jsonParse } from './jsonParse';
 
 const Editor = dynamic(() => import('./editor'), { ssr: false });
 
@@ -38,7 +39,7 @@ function getJSONParseError(data) {
 
 function isJSON(data) {
   try {
-    JSON.parse(data.toString());
+    jsonParse(data.toString());
   } catch (e) {
     return false;
   }

@@ -14,6 +14,7 @@ import { useRef, useEffect, useCallback, useState } from 'react';
 import 'jsoneditor/dist/jsoneditor.min.css';
 
 import Footer from './footer';
+import { jsonParse } from './jsonParse';
 
 export default function Editor({ isLoading, setIsLoading, isOpen, onClose, data, setData, saveData }) {
   const [editorContainer, setEditorContainer] = useState(null);
@@ -31,7 +32,7 @@ export default function Editor({ isLoading, setIsLoading, isOpen, onClose, data,
     });
 
     setEditor(editor);
-    editor.set(JSON.parse(data.data.toString()));
+    editor.set(jsonParse(data.data));
 
     return () => {
       setEditor(null);
